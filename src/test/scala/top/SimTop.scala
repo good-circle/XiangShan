@@ -28,6 +28,7 @@ import freechips.rocketchip.devices.debug._
 import difftest._
 import freechips.rocketchip.util.ElaborationArtefacts
 import top.TopMain.writeOutputFile
+import huancun.utils.ChiselDB
 
 class SimTop(implicit p: Parameters) extends Module {
   val debugOpts = p(DebugOptionsKey)
@@ -106,8 +107,14 @@ object SimTop extends App {
         DisableMonitors(p => new SimTop()(p))(config)
       })
     ))
-    ElaborationArtefacts.files.foreach{ case (extension, contents) =>
-      writeOutputFile("./build", s"XSTop.${extension}", contents())
+    ChiselDB.addToElaborationArtefacts
+    ElaborationArtefacts.files.foreach{
+      case (extension, contents) =>
+        val prefix = extension match {
+          case "h" | "cpp" => "chisel_db"
+          case _ => "XSTop"
+        }
+        writeOutputFile("./build", s"$prefix.${extension}", contents())
     }
   }
 }

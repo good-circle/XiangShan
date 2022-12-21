@@ -63,6 +63,7 @@ class L2TlbPrefetch(implicit p: Parameters) extends XSModule with HasPtwConst {
     old_v.map(_ := false.B)
   }
 
-  XSPerfAccumulate("l2tlb_prefetch_input_count", input_valid)
+  XSPerfAccumulate("l2tlb_prefetch_input_count", io.in.valid)
+  XSPerfAccumulate("l2tlb_prefetch_valid_count", input_valid)
   XSPerfAccumulate("l2tlb_prefetch_output_count", io.out.fire())
 }
