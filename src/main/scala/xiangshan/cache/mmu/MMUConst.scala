@@ -51,19 +51,19 @@ case class L2TLBParameters
 (
   name: String = "l2tlb",
   // l1
-  l1Size: Int = 512,
+  l1Size: Int = 16,
   l1Associative: String = "fa",
   l1Replacer: Option[String] = Some("plru"),
   // l2
-  l2nSets: Int = 128,
-  l2nWays: Int = 16,
+  l2nSets: Int = 32,
+  l2nWays: Int = 2,
   l2Replacer: Option[String] = Some("setplru"),
   // l3
-  l3nSets: Int = 256,
-  l3nWays: Int = 32,
+  l3nSets: Int = 64,
+  l3nWays: Int = 4,
   l3Replacer: Option[String] = Some("setplru"),
   // sp
-  spSize: Int = 512,
+  spSize: Int = 16,
   spReplacer: Option[String] = Some("plru"),
   // dtlb filter
   filterSize: Int = 8,
