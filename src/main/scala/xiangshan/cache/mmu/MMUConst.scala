@@ -55,7 +55,7 @@ case class L2TLBParameters
   l1Associative: String = "fa",
   l1Replacer: Option[String] = Some("plru"),
   // l2
-  l2nSets: Int = 64,
+  l2nSets: Int = 32,
   l2nWays: Int = 2,
   l2Replacer: Option[String] = Some("setplru"),
   // l3
@@ -75,7 +75,7 @@ case class L2TLBParameters
   // way size
   blockBytes: Int = 64,
   // prefetch
-  enablePrefetch: Boolean = true,
+  enablePrefetch: Boolean = false,
   // ecc
   ecc: Option[String] = Some("secded")
 )
