@@ -75,7 +75,7 @@ case class L2TLBParameters
   // way size
   blockBytes: Int = 64,
   // prefetch
-  enablePrefetch: Boolean = false,
+  enablePrefetch: Boolean = true,
   // ecc
   ecc: Option[String] = Some("secded")
 )

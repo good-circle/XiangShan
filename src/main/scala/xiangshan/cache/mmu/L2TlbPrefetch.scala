@@ -49,7 +49,7 @@ class L2TlbPrefetch(implicit p: Parameters) extends XSModule with HasPtwConst {
   val input_valid = io.in.valid && !flush && !already_have(next_line)
   val v = ValidHold(input_valid, io.out.fire(), flush)
 
-  io.out.valid := v
+  io.out.valid := false.B
   io.out.bits.vpn := next_req
   io.out.bits.source := prefetchID.U
 
