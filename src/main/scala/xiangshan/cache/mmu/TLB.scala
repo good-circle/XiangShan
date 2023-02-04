@@ -75,7 +75,8 @@ class TLB(Width: Int, nRespDups: Int = 1, q: TLBParameters)(implicit p: Paramete
     nDups = nRespDups,
     saveLevel = q.saveLevel,
     normalPage = true,
-    superPage = false
+    superPage = false,
+    useDmode = q.useDmode
   )
   val superPage = TlbStorage(
     name = "super",
@@ -87,6 +88,7 @@ class TLB(Width: Int, nRespDups: Int = 1, q: TLBParameters)(implicit p: Paramete
     saveLevel = q.saveLevel,
     normalPage = q.normalAsVictim,
     superPage = true,
+    useDmode = q.useDmode
   )
 
 
