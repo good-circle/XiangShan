@@ -149,7 +149,7 @@ class TLB(Width: Int, nRespDups: Int = 1, q: TLBParameters)(implicit p: Paramete
     pmp(i).bits.cmd := cmdReg
 
     resp(i).bits.static_pm.valid := !super_hit && vmEnable_dup(i) && q.partialStaticPMP.B // ls/st unit should use this mmio, not the result from pmp
-    resp(i).bits.static_pm.bits := !normal_perm(0).pm.c
+    resp(i).bits.static_pm.bits := !normal_perm(0).pm(RegNext(req(i).bits.vaddr(sectortlbwidth - 1 + 12, 12))).c
 
     // duplicate resp part
     for (d <- 0 until nRespDups) {
@@ -179,7 +179,7 @@ class TLB(Width: Int, nRespDups: Int = 1, q: TLBParameters)(implicit p: Paramete
       // but ptw may also have access fault, then af happens, the translation is wrong.
       // In this case, pf has lower priority than af
 
-      val spm = normal_perm(d).pm // static physical memory protection or attribute
+      val spm = normal_perm(d).pm(RegNext(req(i).bits.vaddr(sectortlbwidth - 1 + 12, 12))) // static physical memory protection or attribute
       val spm_v = !super_hit && vmEnable_dup(i) && q.partialStaticPMP.B // static pm valid; do not use normal_hit, it's too long.
       // for tlb without sram, tlb will miss, pm should be ignored outsize
       resp(i).bits.excp(d).af.ld    := (af || (spm_v && !spm.r)) && TlbCmd.isRead(cmdReg) && fault_valid

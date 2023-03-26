@@ -94,6 +94,11 @@ trait HasTlbConst extends HasXSParameter {
 
   val timeOutThreshold = 10000
 
+  val tlbcontiguous = 8
+  val sectortlbwidth = log2Up(tlbcontiguous)
+  val sectorppnLen = ppnLen - sectortlbwidth
+  val sectorvpnLen = vpnLen - sectortlbwidth
+
   def get_set_idx(vpn: UInt, nSets: Int): UInt = {
     require(nSets >= 1)
     vpn(log2Up(nSets)-1, 0)

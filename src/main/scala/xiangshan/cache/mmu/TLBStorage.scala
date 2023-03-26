@@ -140,7 +140,7 @@ class TLBFA(
     }
     io.r.resp_hit_sameCycle(i) := Cat(hitVec).orR
 
-    access.sets := get_set_idx(vpn_reg, nSets) // no use
+    access.sets := get_set_idx(vpn_reg(vpn_reg.getWidth - 1, sectortlbwidth), nSets) // no use
     access.touch_ways.valid := resp.valid && Cat(hitVecReg).orR
     access.touch_ways.bits := OHToUInt(hitVecReg)
 
@@ -198,6 +198,8 @@ class TLBFA(
     n.ppn := ns.ppn
     n.tag := ns.tag
     n.asid := ns.asid
+    n.valididx := ns.valididx
+    n.ppn_low := ns.ppn_low
     n
   }
 
@@ -259,10 +261,10 @@ class TLBSA(
     val vpn = req.bits.vpn
     val vpn_reg = RegEnable(vpn, req.fire())
 
-    val ridx = get_set_idx(vpn, nSets)
+    val ridx = get_set_idx(vpn(vpn.getWidth - 1, sectortlbwidth), nSets)
     val v_resize = v.asTypeOf(Vec(VPRE_SELECT, Vec(VPOST_SELECT, UInt(nWays.W))))
-    val vidx_resize = RegNext(v_resize(get_set_idx(drop_set_idx(vpn, VPOST_SELECT), VPRE_SELECT)))
-    val vidx = vidx_resize(get_set_idx(vpn_reg, VPOST_SELECT)).asBools.map(_ && RegNext(req.fire()))
+    val vidx_resize = RegNext(v_resize(get_set_idx(drop_set_idx(vpn(vpn.getWidth - 1, sectortlbwidth), VPOST_SELECT), VPRE_SELECT)))
+    val vidx = vidx_resize(get_set_idx(vpn_reg(vpn_reg.getWidth - 1, sectortlbwidth), VPOST_SELECT)).asBools.map(_ && RegNext(req.fire()))
     val vidx_bypass = RegNext((entries.io.waddr === ridx) && entries.io.wen)
     entries.io.raddr(i) := ridx
 
@@ -280,7 +282,7 @@ class TLBSA(
     resp.bits.ppn.suggestName("ppn")
     resp.bits.perm.suggestName("perm")
 
-    access.sets := get_set_idx(vpn_reg, nSets) // no use
+    access.sets := get_set_idx(vpn_reg(vpn_reg.getWidth - 1, sectortlbwidth), nSets) // no use
     access.touch_ways.valid := resp.valid && hit
     access.touch_ways.bits := 1.U // TODO: set-assoc need no replacer when nset is 1
   }
@@ -318,7 +320,7 @@ class TLBSA(
         v.map(a => a.map(b => b := false.B))
     }.otherwise {
         // specific addr but all asid
-        v(get_set_idx(sfence_vpn, nSets)).map(_ := false.B)
+      v(get_set_idx(sfence_vpn(sfence_vpn.getWidth - 1, sectortlbwidth), nSets)).map(_ := false.B)
     }
   }
 
@@ -342,7 +344,7 @@ class TLBSA(
       XSPerfAccumulate(s"hit${i}_${j}", io.r.resp.map(_.valid)
         .zip(io.access.map(a => UIntToOH(a.touch_ways.bits)(j)))
         .map{case(vi, hi) => vi && hi }
-        .zip(io.r.req.map(a => RegNext(get_set_idx(a.bits.vpn, nSets)) === i.U))
+        .zip(io.r.req.map(a => RegNext(get_set_idx(a.bits.vpn(a.bits.vpn.getWidth - 1, sectortlbwidth), nSets)) === i.U))
         .map{a => (a._1 && a._2).asUInt()}
         .fold(0.U)(_ + _)
       )
@@ -351,7 +353,7 @@ class TLBSA(
 
   for (i <- 0 until nSets) {
     XSPerfAccumulate(s"access${i}", io.r.resp.map(_.valid)
-      .zip(io.r.req.map(a => RegNext(get_set_idx(a.bits.vpn, nSets)) === i.U))
+      .zip(io.r.req.map(a => RegNext(get_set_idx(a.bits.vpn(a.bits.vpn.getWidth - 1, sectortlbwidth), nSets)) === i.U))
       .map{a => (a._1 && a._2).asUInt()}
       .fold(0.U)(_ + _)
     )
